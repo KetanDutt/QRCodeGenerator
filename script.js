@@ -40,11 +40,15 @@ dropArea.addEventListener("drop", (event) => {
 
 function showFile() {
     if (file.type === 'text/csv') {
+        document.getElementById("QrCodes").innerHTML = ""
         let fileReader = new FileReader();
         fileReader.onload = (event) => {
             var csvData = event.target.result;
-            // Do something with the CSV data
+
+            document.getElementById("downloadQRCodes").style.display = "block"
+            document.getElementById("QrCodes").appendChild(showCSVasTable(csvData))
             contacts = parseCSV(csvData);
+
             ContactsLoaded(contacts)
         }
         fileReader.readAsText(file);
@@ -55,10 +59,29 @@ function showFile() {
     }
 }
 
+downloadQRCodesBTN = document.getElementById("downloadQRCodesBTN")
+downloadQRCodesBTN.onclick = () => {
+    downloadImages(imgIds)
+}
+
+function downloadImages(imgTags) {
+    imgTags.forEach(function (imgTagid) {
+        imgTag = document.getElementById(imgTagid)
+        var src = imgTag.getAttribute('src');
+        if (src) {
+            var link = document.createElement('a');
+            link.href = src;
+            link.download = imgTag.id;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+}
+
 function ContactsLoaded(contacts) {
-    contacts.forEach(contact => {
-        id = contact.first_name + "img"
-        document.getElementById("QrCodes").innerHTML += '<table><tbody><tr><td>' + contact.first_name + " " + contact.last_name + '</td><td><img id="' + id + '" src=""></tr></td></tbody></table>'
+    contacts.forEach((contact, contactIndex) => {
+        id = imgIds[contactIndex]
         download_image(VcardURL(contact), id)
     });
 }
@@ -80,4 +103,88 @@ function parseCSV(csvData) {
     }
 
     return data;
+}
+
+imgIds = []
+function showCSVasTable(csvContent) {
+    // Split the CSV content into rows
+    var rows = csvContent.split("\n");
+
+    // Create the table element
+    var table = document.createElement("table");
+
+    // Process each row
+    rows.forEach(function (row, rowIndex) {
+        // Split the row into cells
+        var cells = row.split(",");
+        // Create a table row element
+        var tableRow = document.createElement("tr");
+
+        let name = ""
+        if (rowIndex > 0) {
+            name = cells[0] + cells[1]
+        }
+
+        // Process each cell
+        cells.forEach(function (cell, cellIndex) {
+            // Format the cell content of the first row
+            if (rowIndex === 0) {
+                // Replace underscores with spaces
+                var formattedCell = cell.replace(/_/g, " ");
+
+                // Capitalize the first letter of every word
+                formattedCell = formattedCell.replace(/\b\w/g, function (match) {
+                    return match.toUpperCase();
+                });
+
+                // Set the formatted cell content
+                cell = formattedCell;
+            }
+
+            // Create a table cell element
+            var tableCell = document.createElement(rowIndex === 0 ? "th" : "td");
+
+            // Set the cell content
+            var cellText = document.createTextNode(cell);
+            tableCell.appendChild(cellText);
+
+            // Add the cell to the row
+            tableRow.appendChild(tableCell);
+
+            // Create an image tag with unique ID and blank source
+            if (cellIndex === cells.length - 1 && rowIndex == 0) {
+                // Create a table cell element
+                var tableCell = document.createElement(rowIndex === 0 ? "th" : "td");
+
+                var cellText = document.createTextNode("QR Code");
+                tableCell.appendChild(cellText);
+
+                // Add the cell to the row
+                tableRow.appendChild(tableCell);
+            }
+
+            // Create an image tag with unique ID and blank source
+            if (cellIndex === cells.length - 1 && rowIndex > 0) {
+                // Create a table cell element
+                var tableCell = document.createElement(rowIndex === 0 ? "th" : "td");
+
+                var image = document.createElement("img");
+                var uniqueId = name + "_QRCode";
+                imgIds.push(uniqueId)
+                image.setAttribute("id", uniqueId);
+                image.setAttribute("src", "");
+                tableCell.appendChild(image);
+
+                // Add the cell to the row
+                tableRow.appendChild(tableCell);
+            }
+
+        });
+
+        // Add the row to the table
+        table.appendChild(tableRow);
+    });
+
+    // Return the table
+    return table;
 }

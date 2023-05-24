@@ -7,6 +7,11 @@
     font-family: "Poppins", sans-serif;
 }
 
+td,
+th {
+    border: 2px solid rgb(12, 128, 119, .5);
+}
+
 body {
     display: flex;
     align-items: center;
@@ -23,6 +28,7 @@ body {
     flex-wrap: nowrap;
     align-items: center;
     color: white;
+    width: 95%;
 }
 
 .drag-area {
@@ -57,7 +63,7 @@ body {
     margin: 10px 0 15px 0;
 }
 
-.drag-area button {
+button {
     padding: 10px 25px;
     font-size: 20px;
     font-weight: 500;
