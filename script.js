@@ -63,21 +63,44 @@ downloadQRCodesBTN = document.getElementById("downloadQRCodesBTN")
 downloadQRCodesBTN.onclick = () => {
     downloadImages(imgIds)
 }
-
-function downloadImages(imgTags) {
-    imgTags.forEach(function (imgTagid) {
-        imgTag = document.getElementById(imgTagid)
-        var src = imgTag.getAttribute('src');
-        if (src) {
+async function downloadImages(imageUrls) {
+    try {
+        for (let i = 0; i < imageUrls.length; i++) {
+            const imgTagid = imageUrls[i];
+            imgTag = document.getElementById(imgTagid)
+            var src = imgTag.getAttribute('src');
             var link = document.createElement('a');
             link.href = src;
             link.download = imgTag.id;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
+            // Introduce a delay of 1 second between each download
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
-    });
+
+        console.log('All images downloaded successfully!');
+    } catch (error) {
+        console.error('Error occurred while downloading images:', error);
+    }
 }
+
+// function downloadImages(imgTags) {
+//     imgTags.forEach((imgTagid) => {
+//         imgTag = document.getElementById(imgTagid)
+//         var src = imgTag.getAttribute('src');
+//         // if (src) {
+//         var link = document.createElement('a');
+//         link.href = src;
+//         link.download = imgTag.id;
+//         document.body.appendChild(link);
+//         link.click();
+//         document.body.removeChild(link);
+//         // }
+//     });
+// }
 
 function ContactsLoaded(contacts) {
     contacts.forEach((contact, contactIndex) => {
@@ -122,7 +145,7 @@ function showCSVasTable(csvContent) {
 
         let name = ""
         if (rowIndex > 0) {
-            name = cells[0] + cells[1]
+            name = cells[0] + cells[4]
         }
 
         // Process each cell
@@ -171,6 +194,7 @@ function showCSVasTable(csvContent) {
                 var image = document.createElement("img");
                 var uniqueId = name + "_QRCode";
                 imgIds.push(uniqueId)
+                console.log(imgIds)
                 image.setAttribute("id", uniqueId);
                 image.setAttribute("src", "");
                 tableCell.appendChild(image);
