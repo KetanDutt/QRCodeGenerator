@@ -197,6 +197,7 @@ function showCSVasTable(csvContent) {
                 console.log(imgIds)
                 image.setAttribute("id", uniqueId);
                 image.setAttribute("src", "");
+                image.style.width="100px"
                 tableCell.appendChild(image);
 
                 // Add the cell to the row
