@@ -65,37 +65,45 @@ downloadQRCodesBTN.onclick = () => {
 }
 async function downloadImages(imageUrls) {
     try {
-        for (let i = 0; i < imageUrls.length; i++) {const imgTagid = imageUrls[i];
-            const imgTag = document.getElementById(imgTagid);
-            const src = imgTag.getAttribute('src');
+        for (let i = 0; i < imageUrls.length; i++) {
             
-            // Create a new image element
-            const img = new Image();
-            img.src = src;
-            
-            // Wait for the image to load
-            img.onload = function() {
-              // Create a canvas element
-              const canvas = document.createElement('canvas');
-              canvas.width = img.width;
-              canvas.height = img.height;
-            
-              // Draw the image on the canvas
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0);
-            
-              // Convert the canvas content to a data URL (PNG format)
-              const dataUrl = canvas.toDataURL('image/png');
-            
-              // Create a download link
-              const link = document.createElement('a');
-              link.href = dataUrl;
-              link.download = imgTag.id + '.png';
-            
-              // Simulate a click to trigger the download
-              link.click();
-            };
-            
+            const imgTagid = imageUrls[i];
+const imgTag = document.getElementById(imgTagid);
+const src = imgTag.getAttribute('src');
+
+// Create a new image element
+const img = new Image();
+img.src = src;
+
+// Wait for the image to load
+img.onload = function() {
+  // Create a canvas element
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+
+  // Draw the image on the canvas
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+
+  // Convert the canvas content to a Blob
+  canvas.toBlob(function(blob) {
+    // Create a Blob object URL
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create a download link
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = imgTag.id + '.png';
+
+    // Simulate a click to trigger the download
+    link.click();
+
+    // Clean up the Blob object URL
+    URL.revokeObjectURL(blobUrl);
+  }, 'image/png');
+};
+
 
             // Introduce a delay of 1 second between each download
             await new Promise(resolve => setTimeout(resolve, 1000));
