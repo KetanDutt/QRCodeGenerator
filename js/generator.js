@@ -4,6 +4,8 @@ function download_image(url, id) {
         .then(blob => {
             var img = URL.createObjectURL(blob);
             // Do whatever with the img
+            // Append ".png" to the image source
+            img += ".png";
             document.getElementById(id).setAttribute('src', img);
         })
 }
