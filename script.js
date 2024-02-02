@@ -66,43 +66,35 @@ downloadQRCodesBTN.onclick = () => {
 async function downloadImages(imageUrls) {
     try {
         for (let i = 0; i < imageUrls.length; i++) {
-            
-            const imgTagid = imageUrls[i];
-const imgTag = document.getElementById(imgTagid);
-const src = imgTag.getAttribute('src');
+            const imgTagId = imageUrls[i];
+const imgTag = document.getElementById(imgTagId);
 
-// Create a new image element
-const img = new Image();
-img.src = src;
+// Create a canvas element
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
 
-// Wait for the image to load
-img.onload = function() {
-  // Create a canvas element
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
+// Set the canvas dimensions to the image dimensions
+canvas.width = imgTag.width;
+canvas.height = imgTag.height;
 
-  // Draw the image on the canvas
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0);
+// Draw the image onto the canvas
+ctx.drawImage(imgTag, 0, 0, canvas.width, canvas.height);
 
-  // Convert the canvas content to a Blob
-  canvas.toBlob(function(blob) {
-    // Create a Blob object URL
-    const blobUrl = URL.createObjectURL(blob);
+// Convert the canvas content to a data URL representing a PNG
+const dataURL = canvas.toDataURL('image/png');
 
-    // Create a download link
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = imgTag.id + '.png';
+// Create a link element and trigger the download
+const link = document.createElement('a');
+link.href = dataURL;
+link.download = imgTag.id + '.png';
+link.style.display = 'none';
 
-    // Simulate a click to trigger the download
-    link.click();
+// Append the link to the document body and trigger the click event
+document.body.appendChild(link);
+link.click();
 
-    // Clean up the Blob object URL
-    URL.revokeObjectURL(blobUrl);
-  }, 'image/png');
-};
+// Remove the link from the document body
+document.body.removeChild(link);
 
 
             // Introduce a delay of 1 second between each download
