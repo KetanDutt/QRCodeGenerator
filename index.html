@@ -4,52 +4,782 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>drag & drop file</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-        integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- Materialize -->
+    <title>Employee QR Code Generator</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css">
+    <style>
+        :root {
+            --primary-color: #0fb8ac;
+            --primary-dark: #0a8a80;
+            --secondary-color: #158981;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
 
-    <!-- Sweetalert2 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js "></script>
+        [data-theme="dark"] {
+            --primary-color: #0fb8ac;
+            --primary-dark: #0a8a80;
+            --secondary-color: #0a6f68;
+            --text-color: #f7fafc;
+            --text-light: #cbd5e0;
+            --bg-color: #1a202c;
+            --card-bg: #2d3748;
+            --border-color: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet" href="style.css">
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .drag-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 40px;
+            text-align: center;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            margin-bottom: 30px;
+        }
+
+        .drag-area.active {
+            border-color: var(--primary-color);
+            background-color: rgba(15, 184, 172, 0.05);
+        }
+
+        .drag-area .icon {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .drag-area header {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .drag-area span {
+            font-size: 16px;
+            color: var(--text-light);
+            margin: 15px 0;
+            display: block;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            outline: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-color);
+        }
+
+        .btn i {
+            font-size: 18px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        tr:hover {
+            background-color: rgba(15, 184, 172, 0.1);
+        }
+
+        .qr-code {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .summary-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 768px) {
+            .drag-area {
+                padding: 30px 20px;
+            }
+
+            .drag-area header {
+                font-size: 18px;
+            }
+
+            th,
+            td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .qr-code {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container2">
-        <div class="row">
-            <h4>QR Code Generator</h4>
+    <div class="container">
+        <header>
+            <h1>Employee QR Code Generator</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="drag-area">
+            <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <header>Drag & Drop CSV File Here</header>
+            <span>OR</span>
+            <button class="btn" id="browseBtn"><i class="fas fa-folder-open"></i> Browse Files</button>
+            <input type="file" id="fileInput" accept=".csv" hidden>
         </div>
-        <div class="row">
-            <div class="drag-area">
-                <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                <header>Drag & Drop to Upload CSV File</header>
-                <span>OR</span>
-                <button>Browse File</button>
-                <input type="file" accept=".csv" hidden>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="status" id="progressStatus">Processing: 0%</div>
+        </div>
+
+        <div class="summary-card hidden" id="summaryCard">
+            <div class="summary-item">
+                <div class="summary-value" id="totalEmployees">0</div>
+                <div class="summary-label">Total Employees</div>
             </div>
-        </div>
-        <div class="row">
-            <div id="downloadQRCodes" style="display: none;">
-                <button id="downloadQRCodesBTN"><i class="material-icons left">download</i>Download QR Codes</button>
+            <div class="summary-item">
+                <div class="summary-value" id="qrGenerated">0</div>
+                <div class="summary-label">QR Codes Generated</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="fileSize">0 KB</div>
+                <div class="summary-label">File Size</div>
             </div>
         </div>
 
-        <div class="row">
-            <div id="QrCodes"></div>
+        <div class="actions hidden" id="actionButtons">
+            <button class="btn" id="downloadAllBtn"><i class="fas fa-download"></i> Download All QR Codes</button>
+            <button class="btn btn-secondary" id="downloadZipBtn"><i class="fas fa-file-archive"></i> Download as
+                ZIP</button>
+            <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-trash-alt"></i> Clear All</button>
         </div>
+
+    </div>
+    <div id="employeeTable">
+        <header>CSV Format</header>
+        <table>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Company</th>
+                <th>Designation</th>
+                <th>Employee Contact Number</th>
+                <th>Emergency Contact Number (Should not be same as employee contact number)</th>
+                <th>Official Email ID</th>
+            </tr>
+        </table>
     </div>
 
-    <script src="js/generator.js"></script>
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        // DOM Elements
+        const dragArea = document.querySelector(".drag-area");
+        const browseBtn = document.getElementById("browseBtn");
+        const fileInput = document.getElementById("fileInput");
+        const employeeTable = document.getElementById("employeeTable");
+        const actionButtons = document.getElementById("actionButtons");
+        const downloadAllBtn = document.getElementById("downloadAllBtn");
+        const downloadZipBtn = document.getElementById("downloadZipBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const themeToggle = document.getElementById("themeToggle");
+        const progressContainer = document.getElementById("progressContainer");
+        const progressBar = document.getElementById("progressBar");
+        const progressStatus = document.getElementById("progressStatus");
+        const summaryCard = document.getElementById("summaryCard");
+        const totalEmployeesEl = document.getElementById("totalEmployees");
+        const qrGeneratedEl = document.getElementById("qrGenerated");
+        const fileSizeEl = document.getElementById("fileSize");
+
+        // Global variables
+        let contacts = [];
+        let qrCodeImages = [];
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        // Initialize theme
+        function initTheme() {
+            document.body.setAttribute('data-theme', currentTheme);
+            const icon = themeToggle.querySelector('i');
+            icon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+
+            const icon = themeToggle.querySelector('i');
+            icon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Initialize
+        initTheme();
+
+        // Event Listeners
+        browseBtn.addEventListener("click", () => fileInput.click());
+        themeToggle.addEventListener("click", toggleTheme);
+
+        fileInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) handleFile(file);
+        });
+
+        // Drag and Drop events
+        dragArea.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            dragArea.classList.add("active");
+        });
+
+        dragArea.addEventListener("dragleave", () => {
+            dragArea.classList.remove("active");
+        });
+
+        dragArea.addEventListener("drop", (event) => {
+            event.preventDefault();
+            dragArea.classList.remove("active");
+
+            const file = event.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        downloadAllBtn.addEventListener("click", downloadAllQRCodes);
+        downloadZipBtn.addEventListener("click", downloadAsZip);
+        clearBtn.addEventListener("click", clearAll);
+
+        // Handle uploaded file
+        function handleFile(file) {
+            if (file.type !== "text/csv") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File',
+                    text: 'Please upload a CSV file.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+                return;
+            }
+
+            // Show file info
+            const fileSize = (file.size / 1024).toFixed(2);
+            fileSizeEl.textContent = `${fileSize} KB`;
+
+            // Show progress bar
+            progressContainer.style.display = 'block';
+            updateProgress(0, 'Reading CSV file...');
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const csvData = event.target.result;
+                contacts = parseCSV(csvData);
+
+                if (contacts.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No Data Found',
+                        text: 'The CSV file is empty or formatted incorrectly.',
+                        confirmButtonColor: 'var(--primary-color)'
+                    });
+                    return;
+                }
+
+                totalEmployeesEl.textContent = contacts.length;
+                summaryCard.classList.remove('hidden');
+
+                // Generate table and QR codes
+                employeeTable.innerHTML = '';
+                employeeTable.appendChild(createEmployeeTable(csvData));
+                actionButtons.classList.remove('hidden');
+
+                generateQRCodes(contacts);
+            };
+            reader.readAsText(file);
+        }
+
+        // Parse CSV data
+        function parseCSV(csvData) {
+            const rows = csvData.split("\n").filter(row => row.trim() !== '');
+            if (rows.length < 2) return [];
+
+            const headers = rows[0].split(",").map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i].split(",");
+                if (row.length === headers.length) {
+                    const rowData = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        rowData[headers[j]] = row[j] ? row[j].trim() : '';
+                    }
+                    data.push(rowData);
+                }
+            }
+
+            return data;
+        }
+
+        // Create employee table
+        function createEmployeeTable(csvContent) {
+            const rows = csvContent.split("\n").filter(row => row.trim() !== '');
+            const table = document.createElement("table");
+
+            // Process headers
+            const headerRow = document.createElement("tr");
+            const headers = rows[0].split(",");
+
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                const formattedHeader = header.trim()
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, match => match.toUpperCase());
+                th.textContent = formattedHeader;
+                console.log(formattedHeader)
+                if (formattedHeader === "ID" || formattedHeader === "Name" || formattedHeader === "Email" || formattedHeader === "Designation" || formattedHeader === "Blood Group" || formattedHeader === "Employee ID" || formattedHeader === "Employee Contact Number") {
+                    headerRow.appendChild(th);
+                }
+            });
+
+            // Add QR Code header
+            const qrHeader = document.createElement("th");
+            qrHeader.textContent = "QR Code";
+            headerRow.appendChild(qrHeader);
+            table.appendChild(headerRow);
+
+            // Process data rows
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].split(",");
+                const tableRow = document.createElement("tr");
+
+                cells.forEach((cell, cellIndex) => {
+                    const td = document.createElement("td");
+                    td.textContent = cell ? cell.trim() : '';
+                    if (cellIndex === 0 || cellIndex === 3 || cellIndex === 4 || cellIndex === 8 || cellIndex === 9 || cellIndex === 10 || cellIndex === 11) {
+                        tableRow.appendChild(td);
+                    }
+                });
+
+                // Add QR Code cell
+                const qrCell = document.createElement("td");
+                const image = document.createElement("img");
+                const uniqueId = `qr-${i}-${Date.now()}`;
+                image.setAttribute("id", uniqueId);
+                image.setAttribute("class", "qr-code");
+                image.setAttribute("alt", "QR Code");
+                qrCell.appendChild(image);
+                tableRow.appendChild(qrCell);
+
+                qrCodeImages.push({
+                    id: uniqueId,
+                    name: `${cells[3] || 'employee'}-${i}` // Using name and index for filename
+                });
+
+                table.appendChild(tableRow);
+            }
+
+            return table;
+        }
+
+        // Generate QR codes
+        function generateQRCodes(contacts) {
+            qrGeneratedEl.textContent = '0';
+            const total = contacts.length;
+            let completed = 0;
+
+            contacts.forEach((contact, index) => {
+                setTimeout(() => {
+                    const qrId = qrCodeImages[index].id;
+                    const vcardUrl = generateVcardURL(contact);
+                    generateQRCode(vcardUrl, qrId).then(() => {
+                        completed++;
+                        qrGeneratedEl.textContent = completed;
+                        const progress = Math.round((completed / total) * 100);
+                        updateProgress(progress, `Generating QR codes: ${completed} of ${total}`);
+
+                        if (completed === total) {
+                            updateProgress(100, 'All QR codes generated!');
+                            setTimeout(() => {
+                                progressContainer.style.display = 'none';
+                            }, 1500);
+                        }
+                    });
+                }, index * 200); // Stagger requests to avoid rate limiting
+            });
+        }
+
+        // Generate QR code image
+        function generateQRCode(url, elementId) {
+            return new Promise((resolve) => {
+                fetch(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const imgUrl = URL.createObjectURL(blob);
+                        const imgElement = document.getElementById(elementId);
+                        imgElement.src = imgUrl;
+                        imgElement.dataset.blobUrl = imgUrl; // Store blob URL for later download
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error('Error generating QR code:', error);
+                        resolve();
+                    });
+            });
+        }
+
+        // Generate vCard URL
+        function generateVcardURL(contact) {
+            const vcardData = [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                `N:${contact['Last Name'] || ''};${contact['First Name'] || ''}`,
+                `FN:${contact['First Name'] || ''} ${contact['Last Name'] || ''}`,
+                `ORG:${contact['Company'] || 'Unknown Company'}`,
+                `TITLE:${contact['Designation'] || ''}`,
+                `TEL;TYPE=WORK,VOICE:${contact['Employee Contact Number'] || ''}`,
+                `TEL;TYPE=CELL:${contact['Emergency Contact Number (Should not be same as employee contact number)'] || ''}`,
+                `EMAIL;TYPE=WORK:${contact['Official Email ID'] || ''}`,
+                'END:VCARD'
+            ].join('\n');
+
+            return vcardData;
+        }
+
+        // Update progress bar
+        function updateProgress(percent, message) {
+            progressBar.style.width = `${percent}%`;
+            progressStatus.textContent = message;
+        }
+
+        // Download all QR codes as individual files
+        async function downloadAllQRCodes() {
+            downloadAllBtn.innerHTML = '<span class="spinner"></span> Preparing downloads...';
+            downloadAllBtn.disabled = true;
+
+            try {
+                for (let i = 0; i < qrCodeImages.length; i++) {
+                    const imgInfo = qrCodeImages[i];
+                    const imgElement = document.getElementById(imgInfo.id);
+
+                    if (imgElement && imgElement.src) {
+                        await downloadImage(imgElement.src, `${imgInfo.name}-qrcode.png`);
+                        await new Promise(resolve => setTimeout(resolve, 300)); // Delay between downloads
+                    }
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Download Complete',
+                    text: 'All QR codes have been downloaded.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+            } catch (error) {
+                console.error('Error downloading QR codes:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Download Failed',
+                    text: 'An error occurred while downloading QR codes.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+            } finally {
+                downloadAllBtn.innerHTML = '<i class="fas fa-download"></i> Download All QR Codes';
+                downloadAllBtn.disabled = false;
+            }
+        }
+
+        // Download single image
+        function downloadImage(url, filename) {
+            return fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                });
+        }
+
+        // Download all QR codes as a ZIP file
+        async function downloadAsZip() {
+            downloadZipBtn.innerHTML = '<span class="spinner"></span> Creating ZIP...';
+            downloadZipBtn.disabled = true;
+
+            try {
+                const zip = new JSZip();
+                const imgFolder = zip.folder("employee_qr_codes");
+                let addedFiles = 0;
+
+                // Add each QR code to the ZIP
+                for (let i = 0; i < qrCodeImages.length; i++) {
+                    const imgInfo = qrCodeImages[i];
+                    const imgElement = document.getElementById(imgInfo.id);
+
+                    if (imgElement && imgElement.src) {
+                        const blob = await fetch(imgElement.src).then(r => r.blob());
+                        imgFolder.file(`${imgInfo.name}-qrcode.png`, blob);
+                        addedFiles++;
+                    }
+                }
+
+                if (addedFiles === 0) {
+                    throw new Error('No QR codes available to download');
+                }
+
+                // Generate the ZIP file
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, "employee_qr_codes.zip");
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ZIP Download Complete',
+                    text: 'All QR codes have been packaged into a ZIP file.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+            } catch (error) {
+                console.error('Error creating ZIP file:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ZIP Creation Failed',
+                    text: 'An error occurred while creating the ZIP file.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
+            } finally {
+                downloadZipBtn.innerHTML = '<i class="fas fa-file-archive"></i> Download as ZIP';
+                downloadZipBtn.disabled = false;
+            }
+        }
+
+        // Clear all data
+        function clearAll() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will remove all generated QR codes and employee data.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary-color)',
+                cancelButtonColor: 'var(--secondary-color)',
+                confirmButtonText: 'Yes, clear it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    contacts = [];
+                    qrCodeImages = [];
+                    employeeTable.innerHTML = '';
+                    actionButtons.classList.add('hidden');
+                    summaryCard.classList.add('hidden');
+                    fileInput.value = '';
+                    progressContainer.style.display = 'none';
+
+                    // Revoke all blob URLs to free memory
+                    document.querySelectorAll('img[data-blob-url]').forEach(img => {
+                        URL.revokeObjectURL(img.dataset.blobUrl);
+                    });
+
+                    Swal.fire({
+                        title: 'Cleared!',
+                        text: 'All data has been removed.',
+                        icon: 'success',
+                        confirmButtonColor: 'var(--primary-color)'
+                    });
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
