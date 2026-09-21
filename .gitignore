@@ -1,0 +1,18 @@
+# Dependencies (only needed for the optional test tooling)
+node_modules
+package-lock.json
+
+# Real employee data must never be committed - only the fictitious samples are allowed.
+*.csv
+!samples/*.csv
+*.vcf
+*.zip
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+*.log

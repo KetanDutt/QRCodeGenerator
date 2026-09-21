@@ -1,0 +1,27 @@
+{
+  "name": "employee-qr-code-generator",
+  "version": "2.0.0",
+  "description": "Generate vCard QR codes for a whole team from a CSV file - entirely in the browser, no server, no build step.",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Ketan Dutt",
+  "homepage": "https://github.com/KetanDutt/QRCodeGenerator#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KetanDutt/QRCodeGenerator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KetanDutt/QRCodeGenerator/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test",
+    "lint": "node --check js/utils.js && node --check js/csv.js && node --check js/vcard.js && node --check js/contacts.js && node --check js/qr.js && node --check js/ui.js && node --check js/theme.js && node --check js/app.js && node --check scripts/serve.js"
+  },
+  "devDependencies": {
+    "jsqr": "^1.4.0"
+  }
+}
