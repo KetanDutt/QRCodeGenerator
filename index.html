@@ -14,6 +14,13 @@
   <script src="js/theme.js"></script>
 </head>
 <body>
+  <!-- Ambient background fields for Liquid Glass depth -->
+  <div class="ambient-canvas" aria-hidden="true">
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+    <div class="ambient-glow ambient-glow-3"></div>
+  </div>
+
   <!-- Icon sprite (Feather icons, MIT) -->
   <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">
     <symbol id="icon-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1v1h-1zM14 20h1v1h-1zM18 18h3v3h-3z"/></symbol>
@@ -69,6 +76,7 @@
     </p>
 
     <section class="dropzone" id="dropzone" aria-label="Upload a CSV file">
+      <div class="dropzone-glow" aria-hidden="true"></div>
       <div class="dropzone-icon" aria-hidden="true"><svg class="icon"><use href="#icon-upload-cloud"/></svg></div>
       <div class="dropzone-title">Drag &amp; drop your CSV file here</div>
       <div class="dropzone-or">or</div>
@@ -181,7 +189,8 @@
       <div class="toolbar">
         <div class="search">
           <svg class="icon"><use href="#icon-search"/></svg>
-          <input type="search" class="input" id="searchInput" placeholder="Search name, e-mail, ID… ( / )" aria-label="Search employees" autocomplete="off">
+          <input type="search" class="input" id="searchInput" placeholder="Search name, e-mail, ID…" aria-label="Search employees" autocomplete="off">
+          <kbd class="search-kbd" aria-hidden="true" title="Press / to focus">/</kbd>
         </div>
         <span class="results-count" id="resultsCount" aria-live="polite"></span>
         <div class="toolbar-actions">
